@@ -28,11 +28,13 @@ And it just **does it.**
 
 ## 🔧 Usage
 
+Add this into `claude_desktop_config.json`. (This example is for **Windows**)
+
 ```json
 {
   "mcpServers": {
     "solana": {
-      "command": "D:/SideProjects/sol-chad-mcp/target/release/examples/sol_chad_mcp.exe",
+      "command": "PATH-TO/sol-chad-mcp/target/release/examples/sol_chad_mcp.exe",
       "args": []
     }
   }
