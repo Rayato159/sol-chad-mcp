@@ -1,5 +1,7 @@
 # 🦀 Solana Chad MCP
 
+![Demo](./screenshots/demo.png)
+
 > **Use AI + MCP to monitor your SOL wallet, check market indicators. All by just chatting.**
 
 ## 🚀 What is this?
