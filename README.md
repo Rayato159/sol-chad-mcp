@@ -1,7 +1,7 @@
 # 🦀 Solana Chad MCP
 
 ## 📹 Demo Video
-[![Demo](./screenshot.png)](https://youtu.be/LX2d3rdmec4)
+[![Demo](./screenshots/demo.png)](https://youtu.be/LX2d3rdmec4)
 
 > **Use AI + MCP to monitor your SOL wallet, check market indicators. All by just chatting.**
 
