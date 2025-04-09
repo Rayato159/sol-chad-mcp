@@ -2,11 +2,19 @@ use rmcp::{
     Error as McpError, RoleServer, ServerHandler, const_string, model::*, schemars,
     service::RequestContext, tool,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
+use ta::Next;
+use ta::indicators::{MovingAverageConvergenceDivergence as Macd, RelativeStrengthIndex as Rsi};
 
-mod check_price;
 mod get_balance;
+mod get_block;
+mod get_block_height;
+mod get_health;
+mod get_market_chart;
+mod get_price;
+mod get_slot;
+mod get_supply;
 mod model;
 
 #[derive(Debug, Clone)]
@@ -17,14 +25,14 @@ pub struct WalletBalanceRequest {
     pub address: String,
 }
 
-#[derive(Debug, Clone, Serialize, schemars::JsonSchema)]
-pub struct SolanaCurrentPrice {
-    pub price: f64,
+#[derive(Debug, Clone, Deserialize, schemars::JsonSchema)]
+pub struct GetBlockRequest {
+    pub slot: u64,
 }
 
-#[derive(Debug, Clone, Serialize, schemars::JsonSchema)]
-pub struct WalletBalance {
-    pub balance: f64,
+#[derive(Debug, Clone, Deserialize, schemars::JsonSchema)]
+pub struct GetMarketChartRequest {
+    pub days: u32,
 }
 
 #[tool(tool_box)]
@@ -37,16 +45,29 @@ impl SolanaChad {
         RawResource::new(uri, name.to_string()).no_annotation()
     }
 
-    #[tool(description = "Check current price (USD)")]
-    pub async fn check_price(&self) -> Result<CallToolResult, McpError> {
-        let price = match check_price::CheckPriceRequest::default().req().await {
+    #[tool(description = "Get health status")]
+    pub async fn get_health(&self) -> Result<CallToolResult, McpError> {
+        let res = match get_health::GetHealthRequest::default().fetch().await {
             Ok(r) => r,
             Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
         };
 
-        let result = Content::json(SolanaCurrentPrice {
-            price: price.solana.usd,
-        });
+        let result = Content::json(res);
+
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get current price (USD)")]
+    pub async fn get_price(&self) -> Result<CallToolResult, McpError> {
+        let price = match get_price::GetPriceRequest::default().fetch().await {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        let result = Content::json(price);
 
         match result {
             Ok(r) => Ok(CallToolResult::success(vec![r])),
@@ -54,19 +75,196 @@ impl SolanaChad {
         }
     }
 
-    #[tool(description = "Check current wallet balance")]
-    pub async fn check_balance(
+    #[tool(description = "Get current wallet balance")]
+    pub async fn get_balance(
         &self,
         #[tool(aggr)] WalletBalanceRequest { address }: WalletBalanceRequest,
     ) -> Result<CallToolResult, McpError> {
-        let res = match get_balance::GetBalanceRequest::new(address).req().await {
+        let res = match get_balance::GetBalanceRequest::new(address).fetch().await {
             Ok(r) => r,
             Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
         };
 
-        let balance = res.result.value as f64 / 1_000_000_000.0;
+        let result = Content::json(res);
 
-        let result = Content::json(WalletBalance { balance });
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get block by slot")]
+    pub async fn get_block(
+        &self,
+        #[tool(aggr)] GetBlockRequest { slot }: GetBlockRequest,
+    ) -> Result<CallToolResult, McpError> {
+        let res = match get_block::GetBlockRequest::new(slot).fetch().await {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        let result = Content::json(res);
+
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get block height")]
+    pub async fn get_block_height(&self) -> Result<CallToolResult, McpError> {
+        let res = match get_block_height::GetBlockHeightRequest::default()
+            .fetch()
+            .await
+        {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        let result = Content::json(res);
+
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get current slot")]
+    pub async fn get_slot(&self) -> Result<CallToolResult, McpError> {
+        let res = match get_slot::GetSlotRequest::default().fetch().await {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        let result = Content::json(res);
+
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get current supply")]
+    pub async fn get_supply(&self) -> Result<CallToolResult, McpError> {
+        let res = match get_supply::GetSupplyRequest::default().fetch().await {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        let result = Content::json(res);
+
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get MACD chart")]
+    pub async fn get_macd_chart(
+        &self,
+        #[tool(aggr)] GetMarketChartRequest { days }: GetMarketChartRequest,
+    ) -> Result<CallToolResult, McpError> {
+        let res = match get_market_chart::MarketChartRequest::new(days)
+            .fetch()
+            .await
+        {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        // Deserialize market chart
+        let prices = res
+            .prices
+            .iter()
+            .map(|entry| entry[1]) // [timestamp, price] → เอา price
+            .collect::<Vec<f64>>();
+
+        let mut macd = Macd::new(12, 26, 9).unwrap(); // default MACD config
+
+        // Run MACD
+        let mut macd_points = Vec::new();
+
+        for price in prices {
+            let macd_val = macd.next(price);
+
+            if macd_val.macd.is_finite()
+                && macd_val.signal.is_finite()
+                && macd_val.histogram.is_finite()
+                && price.is_finite()
+            {
+                macd_points.push(json!({
+                    "price": price,
+                    "macd": macd_val.macd,
+                    "signal": macd_val.signal,
+                    "histogram": macd_val.histogram,
+                }));
+            } else {
+                tracing::info!(
+                    "⚠️ MACD infinite/NaN found: price={}, macd={:?}, signal={:?}, histogram={:?}",
+                    price,
+                    macd_val.macd,
+                    macd_val.signal,
+                    macd_val.histogram
+                );
+            }
+        }
+
+        let result = Content::json(json!({
+            "macd_chart": macd_points
+        }));
+
+        match result {
+            Ok(r) => Ok(CallToolResult::success(vec![r])),
+            Err(e) => Err(McpError::internal_error(e.to_string(), None)),
+        }
+    }
+
+    #[tool(description = "Get RSI chart")]
+    pub async fn get_rsi_chart(
+        &self,
+        #[tool(aggr)] GetMarketChartRequest { days }: GetMarketChartRequest,
+    ) -> Result<CallToolResult, McpError> {
+        let res = match get_market_chart::MarketChartRequest::new(days)
+            .fetch()
+            .await
+        {
+            Ok(r) => r,
+            Err(e) => return Err(McpError::internal_error(e.to_string(), None)),
+        };
+
+        // Extract only finite close prices
+        let prices = res
+            .prices
+            .iter()
+            .filter_map(|entry| {
+                let price = entry[1];
+                if price.is_finite() && price > 0.0 {
+                    Some(price)
+                } else {
+                    tracing::info!("⚠️ Invalid price skipped: {}", price);
+                    None
+                }
+            })
+            .collect::<Vec<f64>>();
+
+        let mut rsi = Rsi::new(14).unwrap(); // RSI 14 periods
+        let mut rsi_points = Vec::new();
+        for price in prices {
+            let rsi_val = rsi.next(price);
+
+            if rsi_val.is_finite() {
+                rsi_points.push(json!({
+                    "price": price,
+                    "rsi": rsi_val
+                }));
+            } else {
+                println!("⚠️ Non-finite RSI detected: {}", rsi_val);
+            }
+        }
+
+        let result = Content::json(json!({
+            "rsi_chart": rsi_points
+        }));
 
         match result {
             Ok(r) => Ok(CallToolResult::success(vec![r])),
@@ -189,5 +387,32 @@ impl ServerHandler for SolanaChad {
             next_cursor: None,
             resource_templates: Vec::new(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_macd_chart_success() {
+        let solana_chad = SolanaChad::new();
+        let request = GetMarketChartRequest { days: 7 };
+        let result = solana_chad.get_macd_chart(request).await;
+        assert!(result.is_ok(), "Expected Ok, got {:?}", result);
+
+        let result = result.unwrap();
+        tracing::info!("Result: {:?}", result);
+    }
+
+    #[tokio::test]
+    async fn test_get_rsi_chart_success() {
+        let solana_chad = SolanaChad::new();
+        let request = GetMarketChartRequest { days: 7 };
+        let result = solana_chad.get_rsi_chart(request).await;
+        assert!(result.is_ok(), "Expected Ok, got {:?}", result);
+
+        let result = result.unwrap();
+        tracing::info!("Result: {:?}", result);
     }
 }

@@ -1,12 +1,10 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use super::model::SOLANA_PRICE_CHECK_URL;
-
-pub struct CheckPriceRequest;
+pub struct GetPriceRequest;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CheckPriceResponse {
+pub struct GetPriceResponse {
     pub solana: SolanaPriceInfo,
 }
 
@@ -15,24 +13,24 @@ pub struct SolanaPriceInfo {
     pub usd: f64,
 }
 
-impl CheckPriceRequest {
+impl GetPriceRequest {
     pub fn new() -> Self {
         Self
     }
 
-    pub async fn req(&self) -> Result<CheckPriceResponse> {
+    pub async fn fetch(&self) -> Result<GetPriceResponse> {
         let res = reqwest::Client::new()
-            .get(SOLANA_PRICE_CHECK_URL)
+            .get("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd")
             .send()
             .await?
-            .json::<CheckPriceResponse>()
+            .json::<GetPriceResponse>()
             .await?;
 
         Ok(res)
     }
 }
 
-impl Default for CheckPriceRequest {
+impl Default for GetPriceRequest {
     fn default() -> Self {
         Self::new()
     }
@@ -43,8 +41,8 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_check_price() {
-        let result = CheckPriceRequest::default().req().await;
+    async fn test_get_price() {
+        let result = GetPriceRequest::default().fetch().await;
         assert!(result.is_ok());
         assert!(result.unwrap().solana.usd > 0.0);
     }

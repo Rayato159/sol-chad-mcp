@@ -20,6 +20,7 @@ schemars = { version = "0.8", optional = true }
 futures = "0.3"
 rand = { version = "0.9" }
 reqwest = { version = "0.12", features = ["json"] }
+ta = "0.5"
 
 [[example]]
 name = "sol_chad_mcp"

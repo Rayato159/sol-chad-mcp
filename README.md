@@ -1,6 +1,7 @@
 # 🦀 Solana Chad MCP
 
-![Demo](./screenshots/demo.png)
+## 📹 Demo Video
+[![Demo](./screenshot.png)](https://youtu.be/LX2d3rdmec4)
 
 > **Use AI + MCP to monitor your SOL wallet, check market indicators. All by just chatting.**
 
@@ -16,8 +17,14 @@ And it just **does it.**
 
 ## 🧠 Features
 
-✅ `check_price` – Get real-time SOL price  
-✅ `get_balance` – Check SOL balance of any wallet  
+✅ `get_health` – Check if the Solana RPC is healthy
+✅ `get_price` – Get real-time SOL price  
+✅ `get_balance` – Check SOL balance of any wallet
+✅ `get_block` – Get block information by block number
+✅ `get_block_height` – Get the latest block height
+✅ `get_slot` – Get the latest slot number
+✅ `get_macd_chart` – Get MACD chart of SOL price
+✅ `get_rsi_chart` – Get RSI chart of SOL price
 ✅ Natural language interaction via any LLM that supports **MCP**
 
 ## 🏗️ Tech Stack
