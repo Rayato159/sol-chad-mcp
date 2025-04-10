@@ -34,34 +34,41 @@ And it just **does it.**
 - 🔗 **Solana RPC** – for blockchain interactions
 - 💬 **Claude / ChatGPT** – to give AI commands
 
-## 🔧 Usage
+## 🔧 Quick Start
 
-Add this into `claude_desktop_config.json`. (This example is for **Windows**)
+1. Clone this repo:
 
-```json
-{
-  "mcpServers": {
-    "solana": {
-      "command": "PATH-TO/sol-chad-mcp/target/release/examples/sol_chad_mcp.exe",
-      "args": []
-    }
-  }
-}
-```
+   ```bash
+   git clone https://github.com/Rayato159/sol-chad-mcp.git
+   cd sol-chad-mcp
+   ```
 
-### 🧪 Example MCP Tool
+2. Build the project:
 
-```json
-{
-  "name": "get_balance",
-  "description": "Get the balance of a Solana wallet",
-  "parameters": {
-    "address": "xxxxxxxxxxxxx"
-  }
-}
-```
+   ```bash
+   cargo build --release --example solana_chad_mcp
+   ```
+
+3. Add this into `claude_desktop_config.json`. (This example is for **Windows**)
+
+   ```json
+   {
+     "mcpServers": {
+       "solana": {
+         "command": "PATH-TO/sol-chad-mcp/target/release/examples/sol_chad_mcp.exe",
+         "args": []
+       }
+     }
+   }
+   ```
+
+4. Start the Claude Desktop app and chat with that dude.
+
+   ```text
+   Hey bro, can you check the SOL price? and it's time to buy some ?
+   ```
 
 ## ⚠️ Disclaimer
 
-> This is for **educational & entertainment** purposes only.  
+> This is for **educational & entertainment** purposes only.
 > Don’t let AI YOLO your life savings 💸
