@@ -65,7 +65,7 @@ And it just **does it.**
 4. Start the Claude Desktop app and chat with that dude.
 
    ```text
-   Hey bro, can you check the SOL price? and it's time to buy some ?
+   Hey bro, can you check the SOL price ? and it's time to buy some ?
    ```
 
 ## ⚠️ Disclaimer
